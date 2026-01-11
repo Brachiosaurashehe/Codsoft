@@ -1,61 +1,137 @@
+
+      
+            
+  import json
 import os
 
-FILENAME = "tasks.txt"
+FILE_NAME = "tasks.json"
+
 
 def load_tasks():
-    """Load tasks from the text file."""
-    if not os.path.exists(FILENAME):
+    if not os.path.exists(FILE_NAME):
         return []
-    with open(FILENAME, "r") as f:
-        return [line.strip() for line in f.readlines()]
+    with open(FILE_NAME, "r") as file:
+        return json.load(file)
+
 
 def save_tasks(tasks):
-    """Save the current list of tasks to the text file."""
-    with open(FILENAME, "w") as f:
-        for task in tasks:
-            f.write(task + "\n")
+    with open(FILE_NAME, "w") as file:
+        json.dump(tasks, file, indent=4)
+
+
+def show_tasks(tasks):
+    if not tasks:
+        print("\nNo tasks available.\n")
+        return
+
+    print("\nYour Tasks:")
+    for index, task in enumerate(tasks, start=1):
+        status = "✔" if task["completed"] else "✘"
+        print(f"{index}. {task['title']} [{status}]")
+    print()
+
+
+def add_task(tasks):
+    title = input("Enter task title: ").strip()
+    if not title:
+        print("Task title cannot be empty.\n")
+        return
+
+    tasks.append({"title": title, "completed": False})
+    save_tasks(tasks)
+    print("Task added successfully.\n")
+
+
+def update_task(tasks):
+    show_tasks(tasks)
+    try:
+        index = int(input("Enter task number to update: ")) - 1
+        if index < 0 or index >= len(tasks):
+            print("Invalid task number.\n")
+            return
+
+        new_title = input("Enter new task title: ").strip()
+        if not new_title:
+            print("Task title cannot be empty.\n")
+            return
+
+        tasks[index]["title"] = new_title
+        save_tasks(tasks)
+        print("Task updated successfully.\n")
+
+    except ValueError:
+        print("Please enter a valid number.\n")
+
+
+def delete_task(tasks):
+    show_tasks(tasks)
+    try:
+        index = int(input("Enter task number to delete: ")) - 1
+        if index < 0 or index >= len(tasks):
+            print("Invalid task number.\n")
+            return
+
+        tasks.pop(index)
+        save_tasks(tasks)
+        print("Task deleted successfully.\n")
+
+    except ValueError:
+        print("Please enter a valid number.\n")
+
+
+def mark_completed(tasks):
+    show_tasks(tasks)
+    try:
+        index = int(input("Enter task number to mark as completed: ")) - 1
+        if index < 0 or index >= len(tasks):
+            print("Invalid task number.\n")
+            return
+
+        tasks[index]["completed"] = True
+        save_tasks(tasks)
+        print("Task marked as completed.\n")
+
+    except ValueError:
+        print("Please enter a valid number.\n")
+
 
 def main():
+    tasks = load_tasks()
+
     while True:
-        tasks = load_tasks()
-        print(f"\n--- TO-DO LIST ({len(tasks)} tasks) ---")
-        
-        for i, task in enumerate(tasks, 1):
-            print(f"{i}. {task}")
-        
-        print("\nOptions: [1] Add Task  [2] Remove Task  [3] Exit")
-        choice = input("Select an option: ")
+        print("===== TO-DO LIST MENU =====")
+        print("1. View Tasks")
+        print("2. Add Task")
+        print("3. Update Task")
+        print("4. Delete Task")
+        print("5. Mark Task as Completed")
+        print("6. Exit")
+
+        choice = input("Enter your choice (1-6): ").strip()
 
         if choice == "1":
-            new_task = input("Enter the new task: ")
-            if new_task.strip():
-                tasks.append(new_task)
-                save_tasks(tasks)
-                print("Task added!")
-        
+            show_tasks(tasks)
         elif choice == "2":
-            if not tasks:
-                print("Nothing to delete.")
-                continue
-            try:
-                idx = int(input("Enter the task number to delete: ")) - 1
-                if 0 <= idx < len(tasks):
-                    removed = tasks.pop(idx)
-                    save_tasks(tasks)
-                    print(f"Removed: {removed}")
-                else:
-                    print("Invalid task number.")
-            except ValueError:
-                print("Please enter a valid number.")
-        
+            add_task(tasks)
         elif choice == "3":
-            print("Exiting... Goodbye!")
+            update_task(tasks)
+        elif choice == "4":
+            delete_task(tasks)
+        elif choice == "5":
+            mark_completed(tasks)
+        elif choice == "6":
+            print("Exiting To-Do List. Goodbye!")
             break
         else:
-            print("Invalid selection, try again.")
+            print("Invalid choice. Please try again.\n")
+
 
 if __name__ == "__main__":
     main()
+ 
+         
+             
+             
 
      
           
